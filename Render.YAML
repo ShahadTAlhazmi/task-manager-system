@@ -1,0 +1,13 @@
+# Render.com deployment configuration
+# render.yaml
+
+services:
+  - type: web
+    name: team-tasks-management
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app -c gunicorn.conf.py"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    autoDeploy: true
