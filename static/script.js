@@ -372,7 +372,6 @@ async function handleFormSubmit(e) {
   if (!validateForm()) return;
 
   const payload = {
-    title: dom.taskTitle.value.trim(),
     description: dom.taskDesc.value.trim(),
     assigned_to: dom.taskAssigned.value.trim(),
     due_date:    dom.taskDue.value,
@@ -408,42 +407,15 @@ async function handleFormSubmit(e) {
 async function handleDeleteTask(id) {
   const task = state.tasks.find(t => t.id === id);
   if (!task) return;
+  if (!confirm(`Delete "${task.title}"? This cannot be undone.`)) return;
 
-  showDeleteConfirm(task, id);
-}
-
-function showDeleteConfirm(task, id) {
-  const modal = document.createElement('div');
-  modal.className = 'confirm-overlay';
-
-  modal.innerHTML = `
-    <div class="confirm-box">
-      <h3>Delete Task</h3>
-      <p>Are you sure you want to delete "<b>${task.title}</b>"?</p>
-
-      <div class="confirm-actions">
-        <button class="btn btn-ghost" id="cancelDelete">Cancel</button>
-        <button class="btn btn-danger" id="confirmDelete">Delete</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-
-  document.getElementById('cancelDelete').onclick = () => {
-    modal.remove();
-  };
-
-  document.getElementById('confirmDelete').onclick = async () => {
-    try {
-      modal.remove();
-      await api.deleteTask(id);
-      showToast('Task deleted successfully', 'success');
-      await loadData();
-    } catch (err) {
-      showToast('Error deleting task: ' + err.message, 'error');
-    }
-  };
+  try {
+    await api.deleteTask(id);
+    showToast('Task deleted.', 'success');
+    await loadData();
+  } catch (err) {
+    showToast('Error deleting task: ' + err.message, 'error');
+  }
 }
 
 /* ================================================================
